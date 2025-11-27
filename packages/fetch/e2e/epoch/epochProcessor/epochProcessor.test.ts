@@ -290,14 +290,14 @@ describe('Epoch Processor E2E Tests', () => {
         await epochStorage.createEpochs([1529553]);
       });
 
-      it('should throw error if committees already fetched', async () => {
+      it('should return early if committees already fetched', async () => {
         // Mark epoch as committeesFetched using epochStorage
         await epochStorage.updateCommitteesFetched(1529553);
 
-        // Should throw error
-        await expect(epochControllerWithMock.fetchCommittees(1529553)).rejects.toThrow(
-          'Committees for epoch 1529553 already fetched',
-        );
+        // When committees are already fetched, the controller should be idempotent:
+        // it should resolve successfully and not call the beacon client again.
+        await expect(epochControllerWithMock.fetchCommittees(1529553)).resolves.toBeUndefined();
+        expect(mockBeaconClient.getCommittees).not.toHaveBeenCalled();
       });
     });
 
