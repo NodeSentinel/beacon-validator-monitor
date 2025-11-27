@@ -78,9 +78,7 @@ export default tseslint.config(
       '**/.turbo/**',
       '**/.cache/**',
       '**/public/**',
-      // Patrones específicos para cada paquete
-      'packages/api/dist/**',
-      'packages/bot/dist/**',
+      // Package-specific patterns
       'packages/fetch/dist/**',
     ],
   },

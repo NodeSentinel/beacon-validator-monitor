@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "license": "SEE LICENSE IN LICENSE",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
     "build": "next build",
     "dev": "next dev",
@@ -11,7 +14,9 @@
     "cert:setup": "bash scripts/setup-cert.sh",
     "type-check": "tsc --noEmit",
     "lint": "eslint .",
-    "start": "next start"
+    "lint:fix": "eslint . --fix",
+    "start": "next start",
+    "test": "echo \"No tests for telegram-mini-app\""
   },
   "dependencies": {
     "@emotion/is-prop-valid": "latest",
@@ -81,7 +86,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.9",
-    "@types/node": "^22",
+    "@types/node": "^22.17.2",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8.57.1",
@@ -90,6 +95,6 @@
     "postcss": "^8.5",
     "tailwindcss": "^4.1.9",
     "tw-animate-css": "1.3.3",
-    "typescript": "^5"
+    "typescript": "^5.9.2"
   }
 }
