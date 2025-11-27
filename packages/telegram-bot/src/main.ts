@@ -1,4 +1,5 @@
 #!/usr/bin/env tsx
+
 import process from 'node:process';
 
 import type { RunnerHandle } from '@grammyjs/runner';
@@ -15,7 +16,6 @@ async function startPolling(config: PollingConfig) {
     config,
     logger,
   });
-
   await Promise.all([bot.init(), bot.api.deleteWebhook()]);
 
   const runner: RunnerHandle = run(bot, {
@@ -80,13 +80,15 @@ async function startWebhook(config: WebhookConfig) {
   });
 }
 
-try {
+async function main() {
   if (config.isWebhookMode) await startWebhook(config);
   else if (config.isPollingMode) await startPolling(config);
-} catch (error) {
+}
+
+void main().catch((error) => {
   logger.error(error);
   process.exit(1);
-}
+});
 
 // Utils
 

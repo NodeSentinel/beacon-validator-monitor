@@ -82,11 +82,11 @@
     "typescript-eslint": "^8.5.0"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,jsx}": [
+    "**/*.{ts,tsx,js,jsx,cjs,mjs}": [
       "eslint --fix",
       "prettier --write"
     ],
-    "*.{json,md}": [
+    "**/*.{json,md}": [
       "prettier --write"
     ],
     "packages/db/**/*.{ts,tsx}": [
