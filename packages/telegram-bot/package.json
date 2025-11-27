@@ -1,5 +1,5 @@
 {
-  "name": "telegram-bot-template",
+  "name": "telegram-bot",
   "type": "module",
   "version": "0.1.0",
   "private": true,
@@ -7,7 +7,7 @@
   "imports": {
     "@/*": "./build/*"
   },
-  "author": "deptyped <deptyped@gmail.com>",
+  "author": "Nicolás Domínguez <nf.dominguez.87@gmail.com>",
   "license": "SEE LICENSE IN LICENSE",
   "engines": {
     "node": ">=22.0.0"
