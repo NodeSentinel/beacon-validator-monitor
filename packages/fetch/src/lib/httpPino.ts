@@ -1,5 +1,6 @@
 import { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
+import { env } from '@/src/lib/env.js';
 import createLogger from '@/src/lib/pino.js';
 
 // Create the HTTP logger using the existing createLogger function with blue color
@@ -22,23 +23,31 @@ function extractEndpointPath(url: string | undefined): string {
 }
 
 export function logRequest(request: InternalAxiosRequestConfig): InternalAxiosRequestConfig {
-  // Log the request using the custom logger format
-  const endpoint = extractEndpointPath(request.url);
-  httpLogger.info(`${request.method?.toUpperCase()} ${endpoint}`);
+  // Log the request only if LOG_LEVEL is debug
+  const isDebugLevel = env.LOG_LEVEL === 'debug';
+
+  if (isDebugLevel) {
+    const endpoint = extractEndpointPath(request.url);
+    httpLogger.info(`${request.method?.toUpperCase()} ${endpoint}`);
+  }
 
   return request;
 }
 
 export function logResponse(response: AxiosResponse): AxiosResponse {
   // Log the response using the custom logger format
-  const logLevel = response.status >= 400 ? 'error' : 'info';
+  const isError = response.status >= 400;
+  const isDebugLevel = env.LOG_LEVEL === 'debug';
   const endpoint = extractEndpointPath(response.config?.url);
   const message = `${response.status} ${response.config?.method?.toUpperCase()} ${endpoint}`;
 
-  if (logLevel === 'error') {
-    httpLogger.error(message, { statusCode: response.status });
-  } else {
-    httpLogger.info(message);
+  // Always log errors, or log all responses if LOG_LEVEL is debug
+  if (isError || isDebugLevel) {
+    if (isError) {
+      httpLogger.error(message, { statusCode: response.status });
+    } else {
+      httpLogger.info(message);
+    }
   }
 
   return response;

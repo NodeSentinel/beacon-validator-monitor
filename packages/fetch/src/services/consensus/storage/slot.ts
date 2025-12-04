@@ -862,27 +862,27 @@ export class SlotStorage {
 
         // Aggregate rewards into HourlyValidatorStats using pre-calculated values
         // Process in batches to avoid SQL parameter limits
-        const statsBatchSize = 5_000;
-        const statsBatches = chunk(processedRewards, statsBatchSize);
+        // const statsBatchSize = 5_000;
+        // const statsBatches = chunk(processedRewards, statsBatchSize);
 
-        for (const statsBatch of statsBatches) {
-          const valuesClause = statsBatch
-            .map((r) => `(${r.validatorIndex}, ${r.syncCommitteeReward.toString()}, 0)`)
-            .join(',');
+        // for (const statsBatch of statsBatches) {
+        //   const valuesClause = statsBatch
+        //     .map((r) => `(${r.validatorIndex}, ${r.syncCommitteeReward.toString()}, 0)`)
+        //     .join(',');
 
-          await tx.$executeRawUnsafe(`
-            INSERT INTO hourly_validator_stats 
-              (datetime, validator_index, cl_rewards, cl_missed_rewards)
-            SELECT 
-              '${datetime.toISOString()}'::timestamp as datetime,
-              validator_index,
-              cl_rewards,
-              cl_missed_rewards
-            FROM (VALUES ${valuesClause}) AS rewards(validator_index, cl_rewards, cl_missed_rewards)
-            ON CONFLICT (datetime, validator_index) DO UPDATE SET
-              cl_rewards = hourly_validator_stats.cl_rewards + EXCLUDED.cl_rewards
-          `);
-        }
+        //   await tx.$executeRawUnsafe(`
+        //     INSERT INTO hourly_validator_stats
+        //       (datetime, validator_index, cl_rewards, cl_missed_rewards)
+        //     SELECT
+        //       '${datetime.toISOString()}'::timestamp as datetime,
+        //       validator_index,
+        //       cl_rewards,
+        //       cl_missed_rewards
+        //     FROM (VALUES ${valuesClause}) AS rewards(validator_index, cl_rewards, cl_missed_rewards)
+        //     ON CONFLICT (datetime, validator_index) DO UPDATE SET
+        //       cl_rewards = hourly_validator_stats.cl_rewards + EXCLUDED.cl_rewards
+        //   `);
+        // }
 
         // mark slot as processed
         await tx.slot.upsert({

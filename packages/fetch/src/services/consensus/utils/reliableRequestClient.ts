@@ -92,11 +92,30 @@ export abstract class ReliableRequestClient {
     nodeType: 'full' | 'archive',
     errorHandler?: (error: AxiosError<{ message: string }>) => T | undefined,
   ): Promise<T> {
-    try {
-      // Select the appropriate limit based on node type
-      const limit = nodeType === 'full' ? this.fullNodeLimit : this.archiveNodeLimit;
-      return await limit(() =>
-        pRetry(() => callEndpoint(url), {
+    // Select the appropriate limit based on node type
+    const limit = nodeType === 'full' ? this.fullNodeLimit : this.archiveNodeLimit;
+
+    return await limit(() =>
+      pRetry(
+        async () => {
+          try {
+            return await callEndpoint(url);
+          } catch (error) {
+            // If errorHandler is provided, try to handle the error before retrying
+            // If the handler can handle it (returns a value), return it immediately
+            // This prevents unnecessary retries for errors like 404
+            if (errorHandler && error instanceof AxiosError) {
+              const handled = errorHandler(error);
+              if (handled !== undefined) {
+                // Return the handled value directly - p-retry won't retry on success
+                return handled;
+              }
+            }
+            // If errorHandler didn't handle it or doesn't exist, re-throw to continue retries
+            throw error;
+          }
+        },
+        {
           retries,
           minTimeout: ms('1s'),
           onFailedAttempt: async (error: unknown) => {
@@ -113,19 +132,9 @@ export abstract class ReliableRequestClient {
             const delay = this.calculateBackoffDelay(attemptNumber);
             await new Promise((resolve) => setTimeout(resolve, delay));
           },
-        }),
-      );
-    } catch (error) {
-      // Try to handle the error if handler provided
-      if (errorHandler) {
-        const handled = errorHandler(error as AxiosError<{ message: string }>);
-        if (handled !== undefined) {
-          return handled;
-        }
-      }
-
-      throw error;
-    }
+        },
+      ),
+    );
   }
 
   /**

@@ -1,6 +1,4 @@
 import axios, { AxiosError, AxiosInstance } from 'axios';
-import memoizee from 'memoizee';
-import ms from 'ms';
 
 import { logError, logRequest, logResponse } from '@/src/lib/httpPino.js';
 import {
@@ -131,7 +129,7 @@ export class BeaconClient extends ReliableRequestClient {
         return res.data;
       },
       'archive',
-      (error: Error | AxiosError) => {
+      (error: AxiosError) => {
         if (axios.isAxiosError(error) && error.response?.status === 404) {
           return 'SLOT MISSED';
         }

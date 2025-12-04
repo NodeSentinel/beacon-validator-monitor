@@ -216,31 +216,31 @@ export class EpochStorage {
 
         // Aggregate rewards into HourlyValidatorStats using pre-calculated values
         // Process in batches to avoid SQL parameter limits
-        const statsBatchSize = 1000;
-        const statsBatches = chunk(processedRewards, statsBatchSize);
+        // const statsBatchSize = 1000;
+        // const statsBatches = chunk(processedRewards, statsBatchSize);
 
-        for (const statsBatch of statsBatches) {
-          const valuesClause = statsBatch
-            .map(
-              (r) =>
-                `(${r.validatorIndex}, ${r.clRewards.toString()}, ${r.clMissedRewards.toString()})`,
-            )
-            .join(',');
+        // for (const statsBatch of statsBatches) {
+        //   const valuesClause = statsBatch
+        //     .map(
+        //       (r) =>
+        //         `(${r.validatorIndex}, ${r.clRewards.toString()}, ${r.clMissedRewards.toString()})`,
+        //     )
+        //     .join(',');
 
-          await tx.$executeRawUnsafe(`
-            INSERT INTO hourly_validator_stats 
-              (datetime, validator_index, cl_rewards, cl_missed_rewards)
-            SELECT 
-              '${datetime.toISOString()}'::timestamp as datetime,
-              validator_index,
-              cl_rewards,
-              cl_missed_rewards
-            FROM (VALUES ${valuesClause}) AS rewards(validator_index, cl_rewards, cl_missed_rewards)
-            ON CONFLICT (datetime, validator_index) DO UPDATE SET
-              cl_rewards = hourly_validator_stats.cl_rewards + EXCLUDED.cl_rewards,
-              cl_missed_rewards = hourly_validator_stats.cl_missed_rewards + EXCLUDED.cl_missed_rewards
-          `);
-        }
+        //   await tx.$executeRawUnsafe(`
+        //     INSERT INTO hourly_validator_stats
+        //       (datetime, validator_index, cl_rewards, cl_missed_rewards)
+        //     SELECT
+        //       '${datetime.toISOString()}'::timestamp as datetime,
+        //       validator_index,
+        //       cl_rewards,
+        //       cl_missed_rewards
+        //     FROM (VALUES ${valuesClause}) AS rewards(validator_index, cl_rewards, cl_missed_rewards)
+        //     ON CONFLICT (datetime, validator_index) DO UPDATE SET
+        //       cl_rewards = hourly_validator_stats.cl_rewards + EXCLUDED.cl_rewards,
+        //       cl_missed_rewards = hourly_validator_stats.cl_missed_rewards + EXCLUDED.cl_missed_rewards
+        //   `);
+        // }
 
         // Mark epoch as rewardsFetched = true (rewardsAggregated is no longer needed)
         await tx.epoch.update({
