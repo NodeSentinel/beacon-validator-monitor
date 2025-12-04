@@ -142,7 +142,7 @@ export abstract class EpochControllerHelpers {
       const slot = +committee.slot;
 
       // Skip committees from slots before our indexing start point
-      if (slot <= lookbackSlot) {
+      if (slot < lookbackSlot) {
         return;
       }
 

@@ -1,3 +1,6 @@
+-- CreateEnum
+CREATE TYPE "public"."ValidatorExitEvent" AS ENUM ('voluntary', 'slashed');
+
 -- CreateTable
 CREATE TABLE "public"."validator" (
     "id" INTEGER NOT NULL,
@@ -23,9 +26,21 @@ CREATE TABLE "public"."validator_withdrawals" (
 CREATE TABLE "public"."validator_deposits" (
     "slot" INTEGER NOT NULL,
     "pubkey" VARCHAR(98) NOT NULL,
+    "withdrawal_credentials" VARCHAR(66) NOT NULL,
     "amount" BIGINT NOT NULL,
+    "index" INTEGER,
 
     CONSTRAINT "validator_deposits_pkey" PRIMARY KEY ("slot","pubkey")
+);
+
+-- CreateTable
+CREATE TABLE "public"."validator_voluntary_exits" (
+    "index" INTEGER NOT NULL,
+    "epoch" INTEGER NOT NULL,
+    "slot" INTEGER NOT NULL,
+    "event" "public"."ValidatorExitEvent" NOT NULL,
+
+    CONSTRAINT "validator_voluntary_exits_pkey" PRIMARY KEY ("index")
 );
 
 -- CreateTable
@@ -69,30 +84,21 @@ CREATE TABLE "public"."slot" (
     "consensus_reward" BIGINT,
     "execution_reward" BIGINT,
     "committees_count_in_slot" JSONB,
-    "processed" BOOLEAN NOT NULL DEFAULT false,
     "attestations_fetched" BOOLEAN NOT NULL DEFAULT false,
+    "sync_rewards_fetched" BOOLEAN NOT NULL DEFAULT false,
     "consensus_rewards_fetched" BOOLEAN NOT NULL DEFAULT false,
     "execution_rewards_fetched" BOOLEAN NOT NULL DEFAULT false,
-    "validator_withdrawals_fetched" BOOLEAN NOT NULL DEFAULT false,
-    "sync_rewards_fetched" BOOLEAN NOT NULL DEFAULT false,
-    "execution_requests_fetched" BOOLEAN NOT NULL DEFAULT false,
+    "proposer_slashings_fetched" BOOLEAN NOT NULL DEFAULT false,
+    "attester_slashings_fetched" BOOLEAN NOT NULL DEFAULT false,
+    "deposits_fetched" BOOLEAN NOT NULL DEFAULT false,
+    "voluntary_exits_fetched" BOOLEAN NOT NULL DEFAULT false,
+    "ep_withdrawals_fetched" BOOLEAN NOT NULL DEFAULT false,
+    "er_deposits_fetched" BOOLEAN NOT NULL DEFAULT false,
+    "er_withdrawals_fetched" BOOLEAN NOT NULL DEFAULT false,
+    "er_consolidations_fetched" BOOLEAN NOT NULL DEFAULT false,
+    "processed" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "slot_pkey" PRIMARY KEY ("slot")
-);
-
--- CreateTable
-CREATE TABLE "public"."slot_processed_data" (
-    "slot" INTEGER NOT NULL,
-    "withdrawals_rewards" JSONB,
-    "cl_deposits" JSONB,
-    "cl_voluntary_exits" JSONB,
-    "el_deposits" JSONB,
-    "el_withdrawals" JSONB,
-    "el_consolidations" JSONB,
-    "proposer_slashings" JSONB,
-    "attester_slashings" JSONB,
-
-    CONSTRAINT "slot_processed_data_pkey" PRIMARY KEY ("slot")
 );
 
 -- CreateTable
@@ -332,9 +338,6 @@ CREATE INDEX "_user_to_withdrawal_address_B_index" ON "public"."_user_to_withdra
 
 -- CreateIndex
 CREATE INDEX "_user_to_fee_reward_address_B_index" ON "public"."_user_to_fee_reward_address"("B");
-
--- AddForeignKey
-ALTER TABLE "public"."slot_processed_data" ADD CONSTRAINT "slot_processed_data_slot_fkey" FOREIGN KEY ("slot") REFERENCES "public"."slot"("slot") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."_user_to_validator" ADD CONSTRAINT "_user_to_validator_A_fkey" FOREIGN KEY ("A") REFERENCES "public"."user"("id") ON DELETE CASCADE ON UPDATE CASCADE;

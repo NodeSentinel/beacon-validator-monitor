@@ -57,8 +57,12 @@ describe('Slot Processor E2E Tests', () => {
     });
 
     await prisma.committee.deleteMany();
-    await prisma.slotProcessedData.deleteMany();
     await prisma.slot.deleteMany();
+    await prisma.validatorDeposits.deleteMany();
+    await prisma.validatorWithdrawals.deleteMany();
+    await prisma.validatorWithdrawalsRequests.deleteMany();
+    await prisma.validatorConsolidationsRequests.deleteMany();
+    await prisma.validatorExits.deleteMany();
   });
 
   afterAll(async () => {
@@ -75,10 +79,14 @@ describe('Slot Processor E2E Tests', () => {
       // Clean up database
       await prisma.validator.deleteMany();
       await prisma.slot.deleteMany();
-      await prisma.slotProcessedData.deleteMany();
       await prisma.committee.deleteMany();
       await prisma.hourlyValidatorStats.deleteMany();
       await prisma.syncCommitteeRewards.deleteMany();
+      await prisma.validatorDeposits.deleteMany();
+      await prisma.validatorWithdrawals.deleteMany();
+      await prisma.validatorWithdrawalsRequests.deleteMany();
+      await prisma.validatorConsolidationsRequests.deleteMany();
+      await prisma.validatorExits.deleteMany();
 
       // Create mock beacon client
       mockBeaconClient = {
@@ -121,7 +129,7 @@ describe('Slot Processor E2E Tests', () => {
       await slotStorage.updateSlotFlags(24497230, { syncRewardsFetched: true });
 
       // Try to process (should skip due to existing flag)
-      await slotControllerWithMock.fetchSyncCommitteeRewards(24497230, ['mocked', 'list']);
+      await slotControllerWithMock.fetchSyncCommitteeRewards(24497230);
 
       // Verify beacon client was not called
       expect(mockBeaconClient.getSyncCommitteeRewards).not.toHaveBeenCalled();
@@ -139,7 +147,7 @@ describe('Slot Processor E2E Tests', () => {
       const processSpy = vi.spyOn(slotStorage, 'processSyncCommitteeRewardsAndAggregate');
 
       // Process slot 24497230
-      await slotControllerWithMock.fetchSyncCommitteeRewards(24497230, ['mocked', 'list']);
+      await slotControllerWithMock.fetchSyncCommitteeRewards(24497230);
 
       // Verify slot flag was updated (even for missed slots)
       const slot = await slotStorage.getBaseSlot(24497230);
@@ -174,7 +182,7 @@ describe('Slot Processor E2E Tests', () => {
 
       // Process slot 24497230
       mockBeaconClient.getSyncCommitteeRewards.mockResolvedValueOnce(rewardsSyncCommittee24497230);
-      await slotControllerWithMock.fetchSyncCommitteeRewards(24497230, ['mocked', 'list']);
+      await slotControllerWithMock.fetchSyncCommitteeRewards(24497230);
 
       // Verify slot flag was updated
       const slotData24497230 = await slotStorage.getBaseSlot(24497230);
@@ -182,7 +190,7 @@ describe('Slot Processor E2E Tests', () => {
 
       // Process slot 24497231
       mockBeaconClient.getSyncCommitteeRewards.mockResolvedValueOnce(rewardsSyncCommittee24497231);
-      await slotControllerWithMock.fetchSyncCommitteeRewards(24497231, ['mocked', 'list']);
+      await slotControllerWithMock.fetchSyncCommitteeRewards(24497231);
 
       const slotData24497231 = await slotStorage.getBaseSlot(24497231);
       expect(slotData24497231?.syncRewardsFetched).toBe(true);
@@ -251,7 +259,6 @@ describe('Slot Processor E2E Tests', () => {
       // Clean up database
       await prisma.hourlyValidatorStats.deleteMany();
       await prisma.committee.deleteMany();
-      await prisma.slotProcessedData.deleteMany();
       await prisma.slot.deleteMany();
       await prisma.validator.deleteMany();
       await prisma.validatorWithdrawals.deleteMany();
@@ -428,7 +435,6 @@ describe('Slot Processor E2E Tests', () => {
     beforeAll(async () => {
       // Clean up database
       await prisma.committee.deleteMany();
-      await prisma.slotProcessedData.deleteMany();
       await prisma.slot.deleteMany();
       await prisma.validator.deleteMany();
       await prisma.epoch.deleteMany();
@@ -500,10 +506,29 @@ describe('Slot Processor E2E Tests', () => {
       const blockData = blockData24672001 as Block;
       mockBeaconClient.getBlock.mockResolvedValueOnce(blockData);
 
-      // Process slot 24672001 (this will process attestations, withdrawals, and execution requests)
-      const result = await slotControllerWithMock.processSlotData(slot24672001);
-      expect(result).toBeDefined();
-      expect(result).not.toBe('SLOT MISSED');
+      // Process slot 24672001 using individual methods
+      await slotControllerWithMock.processAttestations(
+        slot24672001,
+        blockData.data.message.body.attestations,
+      );
+      await slotControllerWithMock.processEpWithdrawals(
+        slot24672001,
+        blockData.data.message.body.execution_payload.withdrawals,
+      );
+      if (blockData.data.message.body.execution_requests) {
+        await slotControllerWithMock.processErDeposits(
+          slot24672001,
+          blockData.data.message.body.execution_requests.deposits || [],
+        );
+        await slotControllerWithMock.processErWithdrawals(
+          slot24672001,
+          blockData.data.message.body.execution_requests.withdrawals || [],
+        );
+        await slotControllerWithMock.processErConsolidations(
+          slot24672001,
+          blockData.data.message.body.execution_requests.consolidations || [],
+        );
+      }
     });
 
     describe('fetchAttestations', () => {
@@ -544,7 +569,7 @@ describe('Slot Processor E2E Tests', () => {
         // Verify slot flag was updated
         const slotData = await slotStorage.getBaseSlot(slot24672001);
         expect(slotData).toBeDefined();
-        expect(slotData?.validatorWithdrawalsFetched).toBe(true);
+        expect(slotData?.epWithdrawalsFetched).toBe(true);
       });
 
       it('should verify all withdrawals from mock data were saved correctly', async () => {
@@ -579,11 +604,13 @@ describe('Slot Processor E2E Tests', () => {
     });
 
     describe('executionRequests', () => {
-      it('should verify execution requests flag was set', async () => {
-        // Verify slot flag was updated
+      it('should verify execution requests flags were set', async () => {
+        // Verify slot flags were updated
         const slotData = await slotStorage.getBaseSlot(slot24672001);
         expect(slotData).toBeDefined();
-        expect(slotData?.executionRequestsFetched).toBe(true);
+        expect(slotData?.erDepositsFetched).toBe(true);
+        expect(slotData?.erWithdrawalsFetched).toBe(true);
+        expect(slotData?.erConsolidationsFetched).toBe(true);
       });
 
       it('should verify deposits from execution requests were saved correctly', async () => {

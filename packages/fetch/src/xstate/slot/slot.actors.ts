@@ -118,9 +118,6 @@ export const getSlot = fromPromise(async ({ input }: { input: CheckSlotProcessed
     where: {
       slot: input.slot,
     },
-    include: {
-      slotProcessedData: true,
-    },
   }),
 );
 
@@ -392,27 +389,29 @@ export const updateAttestationsProcessed = fromPromise(
 
 /**
  * Actor to process withdrawals rewards from beacon block data
+ * NOTE: This function is legacy and requires SlotProcessedData model to be created in the schema
+ * Currently commented out as the model doesn't exist
  */
-export const processWithdrawalsRewards = fromPromise(
-  async ({
-    input,
-  }: {
-    input: {
-      slot: number;
-      withdrawals: Block['data']['message']['body']['execution_payload']['withdrawals'];
-    };
-  }) =>
-    prisma.slotProcessedData.update({
-      where: {
-        slot: input.slot,
-      },
-      data: {
-        withdrawalsRewards: input.withdrawals.map(
-          (withdrawal) => `${withdrawal.validator_index}:${withdrawal.amount}`,
-        ),
-      },
-    }),
-);
+// export const processWithdrawalsRewards = fromPromise(
+//   async ({
+//     input,
+//   }: {
+//     input: {
+//       slot: number;
+//       withdrawals: Block['data']['message']['body']['execution_payload']['withdrawals'];
+//     };
+//   }) =>
+//     prisma.slotProcessedData.update({
+//       where: {
+//         slot: input.slot,
+//       },
+//       data: {
+//         withdrawalsRewards: input.withdrawals.map(
+//           (withdrawal) => `${withdrawal.validator_index}:${withdrawal.amount}`,
+//         ),
+//       },
+//     }),
+// );
 
 /**
  * Actor to process withdrawals rewards and return the data (for context updates)
@@ -434,14 +433,16 @@ export const processWithdrawalsRewardsData = fromPromise(
 
 /**
  * Actor to update withdrawals processed status in database
+ * NOTE: This function is legacy and requires SlotProcessedData model to be created in the schema
+ * Currently commented out as the model doesn't exist
  */
-export const updateWithdrawalsProcessed = fromPromise(
-  async ({ input }: { input: CheckSlotProcessedInput }) =>
-    prisma.slotProcessedData.update({
-      where: { slot: input.slot },
-      data: { withdrawalsRewards: [] }, // Empty array indicates processed but no withdrawals
-    }),
-);
+// export const updateWithdrawalsProcessed = fromPromise(
+//   async ({ input }: { input: CheckSlotProcessedInput }) =>
+//     prisma.slotProcessedData.update({
+//       where: { slot: input.slot },
+//       data: { withdrawalsRewards: [] }, // Empty array indicates processed but no withdrawals
+//     }),
+// );
 
 /**
  * Mocked actor to process CL deposits from beacon block
@@ -541,36 +542,38 @@ export const processElConsolidations = fromPromise(
 
 /**
  * Actor to update slot with beacon data in database
+ * NOTE: This function is legacy and requires SlotProcessedData model to be created in the schema
+ * Currently commented out as the model doesn't exist
  */
-export const updateSlotWithBeaconData = fromPromise(
-  async ({
-    input,
-  }: {
-    input: {
-      slot: number;
-      beaconBlockData: BeaconSlotProcessingData;
-    };
-  }) => {
-    const { slot, beaconBlockData } = input;
+// export const updateSlotWithBeaconData = fromPromise(
+//   async ({
+//     input,
+//   }: {
+//     input: {
+//       slot: number;
+//       beaconBlockData: BeaconSlotProcessingData;
+//     };
+//   }) => {
+//     const { slot, beaconBlockData } = input;
 
-    if (!beaconBlockData) {
-      throw new Error('Beacon block data is required');
-    }
+//     if (!beaconBlockData) {
+//       throw new Error('Beacon block data is required');
+//     }
 
-    // Update slot with processed status and beacon data
-    const updatedSlot = await prisma.slotProcessedData.update({
-      where: { slot },
-      data: {
-        withdrawalsRewards: beaconBlockData.withdrawalRewards || [],
-        clDeposits: beaconBlockData.clDeposits || [],
-        clVoluntaryExits: beaconBlockData.clVoluntaryExits || [],
-        elDeposits: beaconBlockData.elDeposits || [],
-        elWithdrawals: beaconBlockData.elWithdrawals || [],
-        elConsolidations: beaconBlockData.elConsolidations || [],
-      },
-    });
+//     // Update slot with processed status and beacon data
+//     const updatedSlot = await prisma.slotProcessedData.update({
+//       where: { slot },
+//       data: {
+//         withdrawalsRewards: beaconBlockData.withdrawalRewards || [],
+//         clDeposits: beaconBlockData.clDeposits || [],
+//         clVoluntaryExits: beaconBlockData.clVoluntaryExits || [],
+//         elDeposits: beaconBlockData.elDeposits || [],
+//         elWithdrawals: beaconBlockData.elWithdrawals || [],
+//         elConsolidations: beaconBlockData.elConsolidations || [],
+//       },
+//     });
 
-    console.log(`Updated slot ${slot} with beacon data in database`);
-    return updatedSlot;
-  },
-);
+//     console.log(`Updated slot ${slot} with beacon data in database`);
+//     return updatedSlot;
+//   },
+// );
