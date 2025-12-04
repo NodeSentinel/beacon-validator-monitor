@@ -21,6 +21,7 @@ import { SlotStorage } from '@/src/services/consensus/storage/slot.js';
 import { ValidatorsStorage } from '@/src/services/consensus/storage/validators.js';
 import { GetCommittees, Block } from '@/src/services/consensus/types.js';
 import { BeaconTime } from '@/src/services/consensus/utils/beaconTime.js';
+import { ExecutionClient } from '@/src/services/execution/execution.js';
 import { getUTCDatetimeRoundedToHour } from '@/src/utils/date/index.js';
 
 /**
@@ -94,6 +95,15 @@ describe('Slot Processor E2E Tests', () => {
         getSyncCommitteeRewards: vi.fn(),
       };
 
+      // Create execution client mock
+      const mockExecutionClient = new ExecutionClient({
+        executionApiUrl: 'http://mock-execution',
+        executionApiBkpUrl: 'http://mock-execution-backup',
+        chainId: gnosisConfig.blockchain.chainId,
+        slotDuration: gnosisConfig.beacon.slotDuration,
+        requestsPerSecond: 3,
+      });
+
       // Create slot controller with mock
       slotControllerWithMock = new SlotController(
         slotStorage,
@@ -106,6 +116,7 @@ describe('Slot Processor E2E Tests', () => {
           epochsPerSyncCommitteePeriod: gnosisConfig.beacon.epochsPerSyncCommitteePeriod,
           lookbackSlot: 32000,
         }),
+        mockExecutionClient,
       );
 
       // Save validators data to database
@@ -276,6 +287,15 @@ describe('Slot Processor E2E Tests', () => {
         getBlockRewards: vi.fn(),
       };
 
+      // Create execution client mock
+      const mockExecutionClient = new ExecutionClient({
+        executionApiUrl: 'http://mock-execution',
+        executionApiBkpUrl: 'http://mock-execution-backup',
+        chainId: gnosisConfig.blockchain.chainId,
+        slotDuration: gnosisConfig.beacon.slotDuration,
+        requestsPerSecond: 3,
+      });
+
       // Create slot controller with mock
       slotControllerWithMock = new SlotController(
         slotStorage,
@@ -288,6 +308,7 @@ describe('Slot Processor E2E Tests', () => {
           epochsPerSyncCommitteePeriod: gnosisConfig.beacon.epochsPerSyncCommitteePeriod,
           lookbackSlot: 32000,
         }),
+        mockExecutionClient,
       );
 
       // Save validators data to database
@@ -474,12 +495,22 @@ describe('Slot Processor E2E Tests', () => {
         beaconTimeWithLookback,
       );
 
+      // Create execution client mock
+      const mockExecutionClient = new ExecutionClient({
+        executionApiUrl: 'http://mock-execution',
+        executionApiBkpUrl: 'http://mock-execution-backup',
+        chainId: gnosisConfig.blockchain.chainId,
+        slotDuration: gnosisConfig.beacon.slotDuration,
+        requestsPerSecond: 3,
+      });
+
       // Create slot controller with mock
       slotControllerWithMock = new SlotController(
         slotStorage,
         epochStorage,
         mockBeaconClient as unknown as BeaconClient,
         beaconTimeWithLookback,
+        mockExecutionClient,
       );
 
       // Save validators data to database

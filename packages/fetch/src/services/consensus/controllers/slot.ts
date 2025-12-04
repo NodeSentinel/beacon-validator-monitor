@@ -6,7 +6,7 @@ import { BeaconTime } from '../utils/beaconTime.js';
 import { SlotControllerHelpers } from './helpers/slotControllerHelpers.js';
 
 import { EpochStorage } from '@/src/services/consensus/storage/epoch.js';
-import { getBlock as getExecutionBlock } from '@/src/services/execution/endpoints.js';
+import { ExecutionClient } from '@/src/services/execution/execution.js';
 import { convertToUTC, getUTCDatetimeRoundedToHour } from '@/src/utils/date/index.js';
 
 /**
@@ -18,6 +18,7 @@ export class SlotController extends SlotControllerHelpers {
     private readonly epochStorage: EpochStorage,
     private readonly beaconClient: BeaconClient,
     private readonly beaconTime: BeaconTime,
+    private readonly executionClient: ExecutionClient,
   ) {
     super();
   }
@@ -193,7 +194,7 @@ export class SlotController extends SlotControllerHelpers {
       return;
     }
 
-    const blockInfo = await getExecutionBlock(blockNumber);
+    const blockInfo = await this.executionClient.getBlock(blockNumber);
     if (!blockInfo) {
       throw new Error(`Block ${blockNumber} not found`);
     }

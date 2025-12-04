@@ -11,6 +11,7 @@ import { EpochStorage } from '@/src/services/consensus/storage/epoch.js';
 import { SlotStorage } from '@/src/services/consensus/storage/slot.js';
 import { ValidatorsStorage } from '@/src/services/consensus/storage/validators.js';
 import { BeaconTime } from '@/src/services/consensus/utils/beaconTime.js';
+import { ExecutionClient } from '@/src/services/execution/execution.js';
 import initXstateMachines from '@/src/xstate/index.js';
 import { getMultiMachineLogger } from '@/src/xstate/multiMachineLogger.js';
 
@@ -121,7 +122,23 @@ async function main() {
     validatorsStorage,
     beaconTime,
   );
-  const slotController = new SlotController(slotStorage, epochStorage, beaconClient, beaconTime);
+
+  const executionClient = new ExecutionClient({
+    executionApiUrl: env.EXECUTION_API_URL,
+    executionApiBkpUrl: env.EXECUTION_API_BKP_URL,
+    executionApiBkpKey: env.EXECUTION_API_BKP_KEY,
+    chainId: chainConfig.blockchain.chainId,
+    slotDuration: chainConfig.beacon.slotDuration,
+    requestsPerSecond: env.EXECUTION_API_REQUEST_PER_SECOND,
+  });
+
+  const slotController = new SlotController(
+    slotStorage,
+    epochStorage,
+    beaconClient,
+    beaconTime,
+    executionClient,
+  );
 
   // Start indexing the beacon chain
   await validatorsController.initValidators();
