@@ -52,7 +52,7 @@ pnpm --filter @beacon-indexer/db exec prisma db push --schema=prisma/schema.pris
 
 # Run E2E tests
 echo -e "${GREEN}🧪 Running E2E tests...${NC}"
-cd packages/fetch
+cd packages/indexer
 DATABASE_URL="postgresql://postgres:password@localhost:5433/beacon_test?schema=public" \
 pnpm test:e2e
 

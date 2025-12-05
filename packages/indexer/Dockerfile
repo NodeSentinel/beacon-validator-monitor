@@ -14,7 +14,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
 # Copy only package.json and tsconfig for each package (minimal files needed for install)
 COPY packages/db/package.json ./packages/db/package.json
 COPY packages/db/tsconfig.json ./packages/db/tsconfig.json
-COPY packages/fetch/package.json ./packages/fetch/package.json
+COPY packages/indexer/package.json ./packages/indexer/package.json
 
 # Copy Prisma schema (needed for prisma generate during postinstall, but we skip it)
 COPY packages/db/prisma ./packages/db/prisma
@@ -26,7 +26,7 @@ RUN pnpm install --frozen-lockfile
 
 # Now copy source code (changes here won't invalidate the install cache)
 COPY packages/db/src ./packages/db/src
-COPY packages/fetch ./packages/fetch
+COPY packages/indexer ./packages/indexer
 COPY scripts/setDbUrl.js ./scripts/setDbUrl.js
 
 # Generate Prisma client from db package
@@ -35,13 +35,13 @@ RUN pnpm exec prisma generate --schema=./packages/db/prisma/schema.prisma
 # Build the db package first
 RUN pnpm --filter @beacon-indexer/db run build
 
-# Build the fetch package after db is ready
-RUN pnpm --filter fetch run build
+# Build the indexer package after db is ready
+RUN pnpm --filter indexer run build
 
 # Verify the build output
-RUN ls -la packages/fetch/dist/
+RUN ls -la packages/indexer/dist/
 
-# Set working directory to the fetch package
-WORKDIR /app/packages/fetch
+# Set working directory to the indexer package
+WORKDIR /app/packages/indexer
 
 CMD ["pnpm", "start"]

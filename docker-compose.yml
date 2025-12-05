@@ -43,17 +43,17 @@ services:
       - app-network
 
   indexer:
-    container_name: fetch
+    container_name: indexer
     restart: on-failure
     env_file:
       - .env
-      - packages/fetch/.env
+      - packages/indexer/.env
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
       - DOCKER_ENV=true
     build:
       context: .
-      dockerfile: packages/fetch/Dockerfile
+      dockerfile: packages/indexer/Dockerfile
       platforms:
         - linux/arm64
     depends_on:

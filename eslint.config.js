@@ -130,7 +130,7 @@ export default tseslint.config(
       // Package-specific patterns
       'packages/db/dist/**',
       'packages/db/generated/**',
-      'packages/fetch/dist/**',
+      'packages/indexer/dist/**',
     ],
   },
 );

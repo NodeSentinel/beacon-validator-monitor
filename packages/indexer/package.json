@@ -1,5 +1,5 @@
 {
-  "name": "fetch",
+  "name": "indexer",
   "version": "1.0.0",
   "description": "Collect validators information from a beacon node, process and save it to the db.",
   "type": "module",

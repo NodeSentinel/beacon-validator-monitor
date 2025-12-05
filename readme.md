@@ -46,7 +46,7 @@ The code is written in TypeScript and uses XState to orchestrate the data fetchi
      # Edit .env with your local PostgreSQL credentials
      ```
    - Create per-package env files for runtime:
-     - `packages/fetch/.env` (service runtime)
+     - `packages/indexer/.env` (service runtime)
      - `packages/telegram-bot/.env` (bot runtime)
      - `packages/telegram-mini-app/.env.local` (Next.js dev)
    - See "Environment variables" below for full templates.
@@ -64,7 +64,7 @@ The code is written in TypeScript and uses XState to orchestrate the data fetchi
 - pnpm db:generate
 - pnpm db:dev:reset
 - pnpm build
-- pnpm dev:fetch
+- pnpm dev:indexer
 
 ## Environment variables
 
@@ -84,9 +84,9 @@ POSTGRES_PORT=5432
 DOCKER_ENV=false
 ```
 
-### packages/fetch/.env
+### packages/indexer/.env
 
-Runtime variables for the fetch service.
+Runtime variables for the indexer service.
 
 ```bash
 # Database
@@ -186,7 +186,7 @@ The beacon indexer follows a clean layered architecture pattern that separates c
 ### Packages
 
 - **`@beacon-indexer/db`**: Database layer with Prisma ORM and PostgreSQL
-- **`fetch`**: Core data collection and processing service
+- **`indexer`**: Core data collection and processing service
 - **`api`**: REST API for data access (planned)
 
 ### State Machine Architecture
@@ -205,7 +205,7 @@ The system uses XState to coordinate data processing through a hierarchical stat
 
 ### Development
 
-- `dev:fetch`: Start the fetch service in development mode with hot reload. Requires PostgreSQL to be running and database migrations to be applied.
+- `dev:indexer`: Start the indexer service in development mode with hot reload. Requires PostgreSQL to be running and database migrations to be applied.
 
 ### Database Management (Development Only)
 

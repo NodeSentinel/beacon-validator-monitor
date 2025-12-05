@@ -42,8 +42,8 @@
     "type-check": "pnpm -r exec tsc --noEmit",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "build": "pnpm --filter @beacon-indexer/db build && pnpm --filter fetch build",
-    "dev:fetch": "node ./scripts/setDbUrl.js pnpm --filter fetch run dev",
+    "build": "pnpm --filter @beacon-indexer/db build && pnpm --filter indexer build",
+    "dev:indexer": "node ./scripts/setDbUrl.js pnpm --filter indexer run dev",
     "db:dev:recreate-migration": "node scripts/dev-recreate-migration.js",
     "db:dev:reset": "node scripts/dev-reset-db.js",
     "db:dev:update-schema": "node scripts/dev-update-schema.js",
@@ -94,8 +94,8 @@
     "packages/db/**/*.{ts,tsx}": [
       "bash -c 'cd packages/db && pnpm exec tsc --noEmit'"
     ],
-    "packages/fetch/**/*.{ts,tsx}": [
-      "bash -c 'cd packages/fetch && pnpm exec tsc --noEmit'"
+    "packages/indexer/**/*.{ts,tsx}": [
+      "bash -c 'cd packages/indexer && pnpm exec tsc --noEmit'"
     ],
     "packages/telegram-bot/**/*.ts": [
       "bash -c 'cd packages/telegram-bot && pnpm exec tsc --noEmit'"
