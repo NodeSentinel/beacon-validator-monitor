@@ -1,4 +1,4 @@
-name: e2e-fetch
+name: e2e-indexer
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
     branches: [main, develop]
 
 jobs:
-  e2e-fetch:
+  e2e-indexer:
     runs-on: ubuntu-latest
     
     steps:
@@ -81,7 +81,7 @@ jobs:
           
       - name: Run e2e tests
         run: |
-          cd packages/fetch
+          cd packages/indexer
           DATABASE_URL="postgresql://postgres:password@localhost:5433/beacon_test?schema=public" \
           pnpm vitest run --config vitest.e2e.config.ts --no-coverage
           
