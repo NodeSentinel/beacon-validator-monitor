@@ -242,6 +242,13 @@ export const slotProcessorMachine = setup({
             target: 'waitingForSlotToStart',
           },
         ],
+        onError: {
+          actions: pinoLog(
+            ({ context, event }) => `error getting slot ${context.slot}: ${event.error}`,
+            'SlotProcessor:gettingSlot',
+            'error',
+          ),
+        },
       },
     },
 
@@ -260,6 +267,14 @@ export const slotProcessorMachine = setup({
         }),
         onDone: {
           target: 'fetchingBeaconBlock',
+        },
+        onError: {
+          actions: pinoLog(
+            ({ context, event }) =>
+              `error waiting for slot ${context.slot} to be ready: ${event.error}`,
+            'SlotProcessor:waitingForSlotToStart',
+            'error',
+          ),
         },
       },
     },
@@ -285,6 +300,14 @@ export const slotProcessorMachine = setup({
               rawData: event.output,
             }),
           }),
+        },
+        onError: {
+          actions: pinoLog(
+            ({ context, event }) =>
+              `error fetching beacon block data for slot ${context.slot}: ${event.error}`,
+            'SlotProcessor:fetchingBeaconData',
+            'error',
+          ),
         },
       },
     },
@@ -354,11 +377,11 @@ export const slotProcessorMachine = setup({
                           target: 'complete',
                         },
                         onError: {
-                          target: 'error',
                           actions: pinoLog(
                             ({ context, event }) =>
                               `error processing attestations for slot ${context.slot}: ${event.error}`,
                             'SlotProcessor:attestations',
+                            'error',
                           ),
                         },
                       },
@@ -379,7 +402,12 @@ export const slotProcessorMachine = setup({
                           target: 'complete',
                         },
                         onError: {
-                          target: 'updateAttestationsProcessed',
+                          actions: pinoLog(
+                            ({ context, event }) =>
+                              `error updating attestations processed flag for slot ${context.slot}: ${event.error}`,
+                            'SlotProcessor:attestations',
+                            'error',
+                          ),
                         },
                       },
                     },
@@ -420,10 +448,12 @@ export const slotProcessorMachine = setup({
                           target: 'complete',
                         },
                         onError: {
-                          target: 'processing',
-                          actions: ({ event }) => {
-                            console.error('Error fetching execution rewards:', event.error);
-                          },
+                          actions: pinoLog(
+                            ({ context, event }) =>
+                              `error fetching execution rewards for slot ${context.slot}: ${event.error}`,
+                            'SlotProcessor:executionRewards',
+                            'error',
+                          ),
                         },
                       },
                     },
@@ -460,6 +490,14 @@ export const slotProcessorMachine = setup({
                         onDone: {
                           target: 'complete',
                         },
+                        onError: {
+                          actions: pinoLog(
+                            ({ context, event }) =>
+                              `error fetching block rewards for slot ${context.slot}: ${event.error}`,
+                            'SlotProcessor:blockRewards',
+                            'error',
+                          ),
+                        },
                       },
                     },
                     complete: {
@@ -490,6 +528,14 @@ export const slotProcessorMachine = setup({
                         },
                         onDone: {
                           target: 'complete',
+                        },
+                        onError: {
+                          actions: pinoLog(
+                            ({ context, event }) =>
+                              `error fetching sync committee rewards for slot ${context.slot}: ${event.error}`,
+                            'SlotProcessor:syncCommitteeRewards',
+                            'error',
+                          ),
                         },
                       },
                     },
@@ -527,6 +573,14 @@ export const slotProcessorMachine = setup({
                         onDone: {
                           target: 'complete',
                         },
+                        onError: {
+                          actions: pinoLog(
+                            ({ context, event }) =>
+                              `error processing ep withdrawals for slot ${context.slot}: ${event.error}`,
+                            'SlotProcessor:epWithdrawals',
+                            'error',
+                          ),
+                        },
                       },
                     },
                     complete: {
@@ -561,6 +615,14 @@ export const slotProcessorMachine = setup({
                         },
                         onDone: {
                           target: 'complete',
+                        },
+                        onError: {
+                          actions: pinoLog(
+                            ({ context, event }) =>
+                              `error processing deposits for slot ${context.slot}: ${event.error}`,
+                            'SlotProcessor:deposits',
+                            'error',
+                          ),
                         },
                       },
                     },
@@ -597,6 +659,14 @@ export const slotProcessorMachine = setup({
                         },
                         onDone: {
                           target: 'complete',
+                        },
+                        onError: {
+                          actions: pinoLog(
+                            ({ context, event }) =>
+                              `error processing voluntary exits for slot ${context.slot}: ${event.error}`,
+                            'SlotProcessor:voluntaryExits',
+                            'error',
+                          ),
                         },
                       },
                     },
@@ -635,6 +705,14 @@ export const slotProcessorMachine = setup({
                         onDone: {
                           target: 'complete',
                         },
+                        onError: {
+                          actions: pinoLog(
+                            ({ context, event }) =>
+                              `error processing er deposits for slot ${context.slot}: ${event.error}`,
+                            'SlotProcessor:erDeposits',
+                            'error',
+                          ),
+                        },
                       },
                     },
                     complete: {
@@ -672,6 +750,14 @@ export const slotProcessorMachine = setup({
                         onDone: {
                           target: 'complete',
                         },
+                        onError: {
+                          actions: pinoLog(
+                            ({ context, event }) =>
+                              `error processing er withdrawals for slot ${context.slot}: ${event.error}`,
+                            'SlotProcessor:erWithdrawals',
+                            'error',
+                          ),
+                        },
                       },
                     },
                     complete: {
@@ -708,6 +794,14 @@ export const slotProcessorMachine = setup({
                         },
                         onDone: {
                           target: 'complete',
+                        },
+                        onError: {
+                          actions: pinoLog(
+                            ({ context, event }) =>
+                              `error processing er consolidations for slot ${context.slot}: ${event.error}`,
+                            'SlotProcessor:erConsolidations',
+                            'error',
+                          ),
                         },
                       },
                     },
@@ -750,6 +844,11 @@ export const slotProcessorMachine = setup({
         },
         onError: {
           target: 'markingSlotCompleted',
+          actions: pinoLog(
+            ({ context, event }) => `error marking slot completed ${context.slot}: ${event.error}`,
+            'SlotProcessor:markingSlotCompleted',
+            'error',
+          ),
         },
       },
     },

@@ -88,12 +88,22 @@ export class SlotControllerHelpers {
     // aggregation_bits come in a hexadecimal format. we convert it to a binary string.
     // each bit represents if the validator on a committee attested or not.
     // First bit represents the first validator in the committee.
+    if (!attestation.aggregation_bits || typeof attestation.aggregation_bits !== 'string') {
+      throw new Error(
+        `Invalid aggregation_bits: expected string but got ${typeof attestation.aggregation_bits}`,
+      );
+    }
     const aggregationBits = convertVariableBitsToString(
       convertHexStringToByteArray(attestation.aggregation_bits),
     );
 
     // committee_bits also comes in a hexadecimal format. we convert it to a binary string.
     // each bit represents if the bits bring data for a committee or not.
+    if (!attestation.committee_bits || typeof attestation.committee_bits !== 'string') {
+      throw new Error(
+        `Invalid committee_bits: expected string but got ${typeof attestation.committee_bits}`,
+      );
+    }
     const committeeBits = convertFixedBitsToString(
       convertHexStringToByteArray(attestation.committee_bits),
     );
