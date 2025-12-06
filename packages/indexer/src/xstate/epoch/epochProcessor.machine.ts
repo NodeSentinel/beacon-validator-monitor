@@ -269,6 +269,14 @@ export const epochProcessorMachine = setup({
         onDone: {
           target: 'checkingCanProcess',
         },
+        onError: {
+          actions: pinoLog(
+            ({ context, event }) =>
+              `error waiting to process epoch ${context.epoch}: ${event.error}`,
+            'EpochProcessor',
+            'error',
+          ),
+        },
       },
     },
     epochProcessing: {
@@ -311,6 +319,14 @@ export const epochProcessorMachine = setup({
                 onDone: {
                   target: 'epochStarted',
                 },
+                onError: {
+                  actions: pinoLog(
+                    ({ context, event }) =>
+                      `error waiting for epoch ${context.epoch} to start: ${event.error}`,
+                    'EpochProcessor:monitoringEpochStart',
+                    'error',
+                  ),
+                },
               },
             },
             epochStarted: {
@@ -347,6 +363,14 @@ export const epochProcessorMachine = setup({
                     }),
                     onDone: {
                       target: 'committeesFetched',
+                    },
+                    onError: {
+                      actions: pinoLog(
+                        ({ context, event }) =>
+                          `error processing committees for epoch ${context.epoch}: ${event.error}`,
+                        'EpochProcessor:committees',
+                        'error',
+                      ),
                     },
                   },
                 },
@@ -386,6 +410,14 @@ export const epochProcessorMachine = setup({
                     }),
                     onDone: {
                       target: 'syncCommitteesFetched',
+                    },
+                    onError: {
+                      actions: pinoLog(
+                        ({ context, event }) =>
+                          `error processing sync committees for epoch ${context.epoch}: ${event.error}`,
+                        'EpochProcessor:syncingCommittees',
+                        'error',
+                      ),
                     },
                   },
                 },
@@ -478,6 +510,14 @@ export const epochProcessorMachine = setup({
                     onDone: {
                       target: 'slotsProcessed',
                     },
+                    onError: {
+                      actions: pinoLog(
+                        ({ context, event }) =>
+                          `error updating slots fetched for epoch ${context.epoch}: ${event.error}`,
+                        'EpochProcessor:slotsProcessing',
+                        'error',
+                      ),
+                    },
                   },
                 },
                 slotsProcessed: {
@@ -525,6 +565,14 @@ export const epochProcessorMachine = setup({
                     onDone: {
                       target: 'activationTracked',
                     },
+                    onError: {
+                      actions: pinoLog(
+                        ({ context, event }) =>
+                          `error processing validators activation for epoch ${context.epoch}: ${event.error}`,
+                        'EpochProcessor:trackingValidatorsActivation',
+                        'error',
+                      ),
+                    },
                   },
                 },
                 activationTracked: {
@@ -570,6 +618,14 @@ export const epochProcessorMachine = setup({
                     }),
                     onDone: {
                       target: 'validatorsBalancesFetched',
+                    },
+                    onError: {
+                      actions: pinoLog(
+                        ({ context, event }) =>
+                          `error processing validators balances for epoch ${context.epoch}: ${event.error}`,
+                        'EpochProcessor:validatorsBalances',
+                        'error',
+                      ),
                     },
                   },
                 },
@@ -628,6 +684,14 @@ export const epochProcessorMachine = setup({
                     onDone: {
                       target: 'fetchingRewards',
                     },
+                    onError: {
+                      actions: pinoLog(
+                        ({ context, event }) =>
+                          `error waiting for epoch ${context.epoch} to end: ${event.error}`,
+                        'EpochProcessor:rewards',
+                        'error',
+                      ),
+                    },
                   },
                 },
                 fetchingRewards: {
@@ -643,6 +707,14 @@ export const epochProcessorMachine = setup({
                     }),
                     onDone: {
                       target: 'rewardsFetched',
+                    },
+                    onError: {
+                      actions: pinoLog(
+                        ({ context, event }) =>
+                          `error processing rewards for epoch ${context.epoch}: ${event.error}`,
+                        'EpochProcessor:rewards',
+                        'error',
+                      ),
                     },
                   },
                 },
@@ -682,6 +754,14 @@ export const epochProcessorMachine = setup({
               machineId: `epochProcessor:${context.epoch}`,
             })),
           ],
+        },
+        onError: {
+          actions: pinoLog(
+            ({ context, event }) =>
+              `error marking epoch ${context.epoch} as processed: ${event.error}`,
+            'EpochProcessor',
+            'error',
+          ),
         },
       },
     },

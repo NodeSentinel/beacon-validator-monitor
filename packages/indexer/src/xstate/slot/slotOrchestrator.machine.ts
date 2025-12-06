@@ -138,6 +138,14 @@ export const slotOrchestratorMachine = setup({
             ),
           },
         ],
+        onError: {
+          actions: pinoLog(
+            ({ context, event }) =>
+              `error finding next slot to process for epoch ${context.epoch}: ${event.error}`,
+            'SlotOrchestrator',
+            'error',
+          ),
+        },
       },
     },
 

@@ -207,11 +207,9 @@ The system uses XState to coordinate data processing through a hierarchical stat
 
 These commands are **only for development** and include safety checks to prevent execution in production:
 
-- **`db:dev:recreate-migration`**: Deletes all existing migrations and creates a fresh initial migration from the current schema. This is useful when you're iterating on schema changes and want to maintain only a base migration. Does not apply the migration to the database.
+- **`db:danger:reset`**: Resets the database (drops all tables and data) and reapplies the base migration. Use this when you want a clean slate with the current schema.
 
-- **`db:dev:reset`**: Resets the database (drops all tables and data) and reapplies the base migration. Use this when you want a clean slate with the current schema.
-
-- **`db:dev:update-schema`**: Updates the database with the latest schema changes using `db push`, then deletes existing migrations and creates a new initial migration. Use this when you've made schema changes and want to sync both the database and migration files.
+- **`db:danger:recreate-migration`**: Updates the database with the latest schema changes using `db push`, then deletes existing migrations and creates a new initial migration. Use this when you've made schema changes and want to sync both the database and migration files.
 
 ### Database Operations
 

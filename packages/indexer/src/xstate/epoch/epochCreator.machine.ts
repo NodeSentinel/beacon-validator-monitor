@@ -1,6 +1,7 @@
 import { fromPromise, setup } from 'xstate';
 
 import { EpochController } from '@/src/services/consensus/controllers/epoch.js';
+import { pinoLog } from '@/src/xstate/pinoLog.js';
 
 export const epochCreationMachine = setup({
   types: {} as {
@@ -37,7 +38,13 @@ export const epochCreationMachine = setup({
         src: 'createEpochsIfNeeded',
         input: ({ context }) => ({ epochController: context.epochController }),
         onDone: 'sleep',
-        onError: 'sleep',
+        onError: {
+          actions: pinoLog(
+            ({ event }) => `error creating epochs: ${event.error}`,
+            'EpochCreator:createEpochs',
+            'error',
+          ),
+        },
       },
     },
     sleep: {
