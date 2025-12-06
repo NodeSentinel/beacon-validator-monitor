@@ -523,12 +523,13 @@ describe('Slot Processor E2E Tests', () => {
       await epochStorage.createEpochs([epoch1542000]);
 
       // Load committees for epoch 1542000
+      // This will create ALL slots for the epoch (24672000-24672015)
       const committeeDataTyped = committeeData1542000 as GetCommittees;
       mockBeaconClient.getCommittees.mockResolvedValueOnce(committeeDataTyped.data);
       await epochControllerWithMock.fetchCommittees(epoch1542000);
 
-      // Create slot 24672001 (where attestations come from)
-      await slotStorage.createTestSlots([{ slot: slot24672001, processed: false }]);
+      // Note: slot 24672001 is already created by fetchCommittees above
+      // No need to manually create it anymore
 
       // Verify slot 24672000 exists and has committeesCountInSlot (needed for attestation processing)
       const slot24672000Data = await slotStorage.getBaseSlot(slot24672000);
