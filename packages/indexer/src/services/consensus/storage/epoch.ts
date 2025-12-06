@@ -185,8 +185,8 @@ export class EpochStorage {
         // Bulk insert into temporary table using VALUES in batches
         // PostgreSQL limit: 32,767 bind variables per prepared statement
         // With 10 columns per row, max batch size = 32,767 / 10 ≈ 3,200 rows
-        // Using 10,000 rows per batch for better performance (using executeRawUnsafe)
-        const batchSize = 10_000;
+        // Using 5,000 rows per batch for better performance (using executeRawUnsafe)
+        const batchSize = 5_000;
         const batches = chunk(parsedRewards, batchSize);
         for (const batch of batches) {
           const valuesClause = batch
@@ -303,7 +303,7 @@ export class EpochStorage {
 
         // PostgreSQL limit: 32,767 bind variables per prepared statement
         // With 5 columns per row, max batch size = 32,767 / 5 ≈ 6,500 rows
-        const batchSize = 6_500;
+        const batchSize = 6_000;
         const batches = chunk(committees, batchSize);
         for (const batch of batches) {
           await tx.$executeRaw`

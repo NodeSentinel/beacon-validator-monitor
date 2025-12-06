@@ -845,8 +845,8 @@ export class SlotStorage {
         // Bulk insert into sync_committee_rewards table using VALUES in batches
         // PostgreSQL limit: 32,767 bind variables per prepared statement
         // With 3 columns per row, max batch size = 32,767 / 3 ≈ 10,900 rows
-        // Using 10,000 rows per batch for better performance (using executeRawUnsafe)
-        const batchSize = 10_000;
+        // Using 5,000 rows per batch for better performance (using executeRawUnsafe)
+        const batchSize = 5_000;
         const batches = chunk(processedRewards, batchSize);
         for (const batch of batches) {
           const valuesClause = batch
